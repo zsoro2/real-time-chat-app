@@ -33,6 +33,17 @@ services:
       MYSQL_PASSWORD: password
     volumes:
       - db-data:/var/lib/mysql
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - '8080:80'
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: rootpassword
+    depends_on:
+      - db
 
 volumes:
   db-data:
