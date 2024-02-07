@@ -1,10 +1,9 @@
 const express = require("express");
 const http = require("http");
-const session = require("express-session");
-const passport = require("passport");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoutes");
 const messageRoutes = require("./routes/messageRoutes");
-const initializePassport = require("./config/passport-config");
 const setupSocket = require("./config/socket-config");
 require("dotenv").config();
 
@@ -12,18 +11,17 @@ const app = express();
 const server = http.createServer(app);
 const io = setupSocket(server);
 
-initializePassport(passport);
+app.use(cookieParser());
 
-app.use(express.json());
 app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   })
 );
-app.use(passport.initialize());
-app.use(passport.session());
+
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Real-Time Chat Apps!");
@@ -34,4 +32,6 @@ app.use(authRoutes);
 app.use(messageRoutes(io));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+module.exports = server;

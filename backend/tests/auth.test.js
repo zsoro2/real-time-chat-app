@@ -1,13 +1,45 @@
-const app = require("../app");
+const server = require("../app");
 const request = require("supertest");
+const { faker } = require("@faker-js/faker");
 
-describe("POST /auth/register", () => {
+describe("Authentication Endpoints", () => {
+  let registeredUser = null;
+
+  beforeAll(async () => {
+    const newUser = {
+      username: faker.internet.userName(),
+      email: faker.internet.email(),
+      password: "password123",
+    };
+
+    const registerResponse = await request(server)
+      .post("/api/auth/register")
+      .send(newUser);
+
+    expect(registerResponse.statusCode).toBe(201);
+    registeredUser = {
+      ...newUser,
+      id: registerResponse.body.id,
+    };
+  });
+
   it("should register a new user", async () => {
-    const res = await request(app).post("/auth/register").send({
-      username: "john_doe",
-      email: "john.doe@example.com",
+    expect(registeredUser).toHaveProperty("id");
+    expect(registeredUser).toHaveProperty("username");
+    expect(registeredUser).toHaveProperty("email");
+  });
+
+  it("should login the registered user", async () => {
+    const loginResponse = await request(server).post("/api/auth/login").send({
+      email: registeredUser.email,
       password: "password123",
     });
-    expect(res.statusCode).toEqual(201);
+
+    expect(loginResponse.statusCode).toBe(200);
+    expect(loginResponse.body).toHaveProperty("token");
+  });
+
+  afterEach(async () => {
+    await server.close();
   });
 });

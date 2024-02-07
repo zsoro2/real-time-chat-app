@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useUser } from "@/hooks/useUser";
 import { useRouter } from "next/navigation";
+import axios from "@/lib/axiosInstance";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -14,11 +14,14 @@ export default function LoginForm() {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const { register, isError } = useUser();
 
-  const onSubmit = async ({ username, email, password }) => {
+  const onSubmit = async ({ email, password }) => {
     try {
-      await register(username, email, password);
+      await axios.post("/api/auth/login", {
+        email,
+        password,
+      });
+
       router.push("/chat");
     } catch (error) {
       console.error("Registration failed:", error.message);
@@ -27,14 +30,6 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="username">Username</Label>
-        <Input
-          {...userRegister("username", { required: true })}
-          placeholder="Enter your username"
-        />
-        {errors.username && <p>Username is required</p>}
-      </div>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input

@@ -1,8 +1,12 @@
+"use client";
+import { useUser } from "@/hooks/useUser";
 import { Button } from "@/components/ui/button";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 
 export default function Page() {
+  const { user } = useUser();
+
   return (
     <div className="flex flex-col h-screen">
       <header className="flex items-center justify-between px-6 py-4 border-b bg-gray-100">
@@ -10,15 +14,29 @@ export default function Page() {
           <TextIcon className="h-6 w-6" />
           <h1 className="text-lg font-semibold">Chat App</h1>
         </div>
-        <div className="flex items-center gap-4">
-          <Button size="icon" variant="ghost">
-            <UserIcon className="h-5 w-5" />
-          </Button>
+        <div className="flex items-center gap-6">
+          <div className="text-center flex items-center">
+            <Button size="icon" variant="ghost">
+              <UserIcon className="h-5 w-5" />
+            </Button>
+            Profile
+          </div>
+          <button>Log out</button>
         </div>
       </header>
       <div className="flex flex-1 overflow-hidden">
         <div className="w-64 border-r overflow-auto hidden md:block">
           <nav className="grid gap-4 p-4">
+            <div className="flex items-center gap-2 bg-gray-200 rounded-md p-2">
+              <Avatar>
+                <AvatarImage alt="@shadcn" />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+              <div className="grid gap-1">
+                <div className="font-semibold">{user?.username}</div>
+                <div className="line-clamp-1 text-xs">{user?.email}</div>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               <Avatar>
                 <AvatarImage alt="@shadcn" />

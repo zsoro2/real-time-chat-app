@@ -1,11 +1,10 @@
-"use client";
-
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useUser } from "@/hooks/useUser";
 import { useRouter } from "next/navigation";
+import axios from "@/lib/axiosInstance";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -14,11 +13,15 @@ export default function RegisterForm() {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const { register, isError } = useUser();
 
   const onSubmit = async ({ username, email, password }) => {
     try {
-      await register(username, email, password);
+      await axios.post("/api/auth/register", {
+        username,
+        email,
+        password,
+      });
+
       router.push("/chat");
     } catch (error) {
       console.error("Registration failed:", error.message);

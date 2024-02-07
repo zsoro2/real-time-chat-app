@@ -1,7 +1,8 @@
 const bcrypt = require("bcryptjs");
-const passport = require("passport");
 const { PrismaClient } = require("@prisma/client");
+const jwt = require("jsonwebtoken");
 const prisma = new PrismaClient();
+const generateToken = require("../utils/generateToken");
 
 const authController = {
   /**
@@ -20,10 +21,19 @@ const authController = {
           username: req.body.username,
         },
       });
+
+      const token = generateToken(user.id, user.email);
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        expires: new Date(Date.now() + 3600000), // 1h
+      });
+
       res.status(201).json({
         id: user.id,
         username: user.username,
         email: user.email,
+        token: token,
       });
     } catch (error) {
       res.status(400).json({ error: "Unable to register user" });
@@ -35,27 +45,52 @@ const authController = {
    *
    * @param {*} req
    * @param {*} res
-   * @param {*} next
    */
-  login: (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      if (!user) {
-        return res.status(401).json({ error: info.message });
-      }
-      req.logIn(user, (err) => {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
-        return res.status(200).json({
-          id: user.id,
-          username: user.username,
-          email: user.email,
-        });
+  login: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const user = await prisma.user.findUnique({
+        where: { email },
       });
-    })(req, res, next);
+
+      if (user && bcrypt.compareSync(password, user.password)) {
+        const token = generateToken(user.id, user.email);
+        res.json({ token });
+      } else {
+        res.status(401).send("Invalid credentials");
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Login failed" });
+    }
+  },
+
+  /**
+   * Get the authenticated user's data.
+   *
+   * @param {*} req
+   * @param {*} res
+   */
+  user: async (req, res) => {
+    try {
+      const token = req.cookies.token;
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+      });
+
+      if (!user) throw new Error("User not found");
+
+      return res.status(200).json({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      });
+    } catch (error) {
+      return res
+        .status(401)
+        .json({ error: error.message || "User is not authenticated" });
+    }
   },
 };
 

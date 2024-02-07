@@ -3,6 +3,7 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const { validationResult } = require('express-validator');
 const { registerValidationRules, loginValidationRules } = require('../validation/userValidation');
+const authenticated  = require("../middleware/authenticated");
 
 const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -12,7 +13,8 @@ const validate = (req, res, next) => {
   next();
 };
 
-router.post('/auth/register', registerValidationRules(), validate, authController.register);
-router.post('/auth/login', loginValidationRules(), validate, authController.login);
+router.get('/api/auth/user', authenticated, authController.user);
+router.post('/api/auth/register', registerValidationRules(), validate, authController.register);
+router.post('/api/auth/login', loginValidationRules(), validate, authController.login);
 
 module.exports = router;
