@@ -16,5 +16,6 @@ const validate = (req, res, next) => {
 router.get('/api/auth/user', authenticated, authController.user);
 router.post('/api/auth/register', registerValidationRules(), validate, authController.register);
 router.post('/api/auth/login', loginValidationRules(), validate, authController.login);
+router.post('/api/auth/logout', authenticated, authController.logout);
 
 module.exports = router;

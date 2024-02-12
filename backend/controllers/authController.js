@@ -55,7 +55,19 @@ const authController = {
 
       if (user && bcrypt.compareSync(password, user.password)) {
         const token = generateToken(user.id, user.email);
-        res.json({ token });
+
+        res.cookie("token", token, {
+          httpOnly: true,
+          expires: new Date(Date.now() + 3600000), // 1h
+        });
+
+        res.status(201).json({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          token: token,
+        });
+
       } else {
         res.status(401).send("Invalid credentials");
       }
@@ -90,6 +102,23 @@ const authController = {
       return res
         .status(401)
         .json({ error: error.message || "User is not authenticated" });
+    }
+  },
+  /**
+   * Logout the user.
+   *
+   * @param {*} req
+   * @param {*} res
+   */
+  logout: async (req, res) => {
+    try {
+      res.clearCookie("token", {
+        httpOnly: true,
+      });
+
+      res.status(200).json({ message: "Successfully logged out" });
+    } catch (error) {
+      res.status(500).json({ error: "Logout failed" });
     }
   },
 };

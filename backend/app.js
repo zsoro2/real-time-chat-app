@@ -4,6 +4,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoutes");
 const messageRoutes = require("./routes/messageRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 const setupSocket = require("./config/socket-config");
 require("dotenv").config();
 
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use(authRoutes);
 app.use(messageRoutes(io));
+app.use(chatRoutes);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

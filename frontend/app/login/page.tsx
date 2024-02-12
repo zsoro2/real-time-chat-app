@@ -1,3 +1,4 @@
+"use client";
 import LoginRegisterLayout from "@/components/layouts/LoginRegister";
 import LoginForm from "@/components/forms/login";
 

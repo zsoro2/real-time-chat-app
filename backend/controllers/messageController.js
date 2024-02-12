@@ -1,8 +1,8 @@
-const { PrismaClient, Prisma } = require('@prisma/client');
+const { PrismaClient, Prisma } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const messageController = {
-  sendMessage: async (req, res, io) => {
+  store: async (req, res, io) => {
     const { content, userId, receiverId } = req.body;
 
     try {
@@ -33,19 +33,23 @@ const messageController = {
           Prisma.sql`SELECT * FROM Chat WHERE id = ${newChatId};`
         );
       }
-
+      let msgStatus = 'read';
       // Add message to the chat using raw SQL, regardless of whether the chat is new or existing
       await prisma.$executeRaw(
-        Prisma.sql`INSERT INTO Message (content, chatId, userId)
-                    VALUES (${content}, ${chat.id}, ${userId});`
+        Prisma.sql`INSERT INTO Message (content, chatId, userId, status)
+                    VALUES (${content}, ${chat.id}, ${userId}, ${msgStatus});`
       );
 
-      res.status(201).json({ message: { content, chatId: chat.id, userId }, chat });
+      io.emit('newMessage',  { content, chatId: chat.id, userId });
+
+      res
+        .status(201)
+        .json({ message: { content, chatId: chat.id, userId }, chat });
     } catch (error) {
-      res.status(400).json({ error: 'Unable to send message' });
+      console.log(error);
+      res.status(400).json({ error: "Unable to send message -" + error });
     }
   },
-
 };
 
 module.exports = messageController;

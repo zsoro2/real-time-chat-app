@@ -1,154 +1,102 @@
 "use client";
+
+import { useForm } from "react-hook-form";
+import io from "socket.io-client";
+import { useEffect, useState } from "react";
 import { useUser } from "@/hooks/useUser";
+import { useChats } from "@/hooks/useChats";
 import { Button } from "@/components/ui/button";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import Header from "@/components/header";
+import ChatList from "@/components/chatList";
+import ChatWindow from "@/components/chatWindow";
+import { useRouter } from "next/navigation";
+import axios from "@/lib/axiosInstance";
+import { BACKEND_URL } from "@/lib/config";
+
+const socket = io(BACKEND_URL);
 
 export default function Page() {
+  const router = useRouter();
   const { user } = useUser();
+  const { chats, chatsAreLoading, chatsHasError, mutate } = useChats();
+  const [selectedChat, setSelectedChat] = useState({});
+  const { register, handleSubmit, reset } = useForm();
+
+  useEffect(() => {
+    if (selectedChat?.chatId && chats) {
+      let currentSelectedChat = chats.find(
+        (c) => selectedChat.chatId == c.chatId
+      );
+      console.log(currentSelectedChat);
+      setSelectedChat({ ...currentSelectedChat });
+    }
+  }, [chats]);
+
+  useEffect(() => {
+    socket.on("newMessage", (newMessage) => {
+      if (newMessage.chatId === selectedChat.chatId) {
+        console.log("update chat");
+        mutate();
+      }
+    });
+
+    return () => {
+      socket.off("newMessage");
+    };
+  }, [selectedChat]);
+
+  const handleChatSelect = (chat) => {
+    setSelectedChat(chat);
+  };
+
+  const sendMessage = async (data) => {
+    try {
+      const { content } = data;
+
+      const receiverId = getReceiverIdFromSelectedChat(selectedChat, user.id);
+      if (!receiverId) {
+        console.error("Receiver ID is missing");
+        return;
+      }
+
+      await axios.post("/api/messages", {
+        content,
+        userId: user.id,
+        receiverId,
+      });
+
+      reset();
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+
+  function getReceiverIdFromSelectedChat(selectedChat, currentUserId) {
+    return selectedChat.messages.find(
+      (messages) => messages.userId !== currentUserId
+    )?.userId;
+  }
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="flex items-center justify-between px-6 py-4 border-b bg-gray-100">
-        <div className="flex items-center gap-2">
-          <TextIcon className="h-6 w-6" />
-          <h1 className="text-lg font-semibold">Chat App</h1>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="text-center flex items-center">
-            <Button size="icon" variant="ghost">
-              <UserIcon className="h-5 w-5" />
-            </Button>
-            Profile
-          </div>
-          <button>Log out</button>
-        </div>
-      </header>
+      <Header user={user} />
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-64 border-r overflow-auto hidden md:block">
-          <nav className="grid gap-4 p-4">
-            <div className="flex items-center gap-2 bg-gray-200 rounded-md p-2">
-              <Avatar>
-                <AvatarImage alt="@shadcn" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <div className="grid gap-1">
-                <div className="font-semibold">{user?.username}</div>
-                <div className="line-clamp-1 text-xs">{user?.email}</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Avatar>
-                <AvatarImage alt="@shadcn" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <div className="grid gap-1">
-                <div className="font-semibold">Olivia Davis</div>
-                <div className="line-clamp-1 text-xs">Active now</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Avatar>
-                <AvatarImage alt="@shadcn" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <div className="grid gap-1">
-                <div className="font-semibold">John Doe</div>
-                <div className="line-clamp-1 text-xs">2 unread messages</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Avatar>
-                <AvatarImage alt="@shadcn" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <div className="grid gap-1">
-                <div className="font-semibold">Jane Smith</div>
-                <div className="line-clamp-1 text-xs">Offline</div>
-              </div>
-            </div>
-          </nav>
-        </div>
+        <ChatList chats={chats} onSelectChat={handleChatSelect} />
         <div className="flex flex-col flex-1">
-          <div className="flex-1 overflow-auto p-4">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-start gap-2">
-                <Avatar>
-                  <AvatarImage alt="@shadcn" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <div className="grid gap-1">
-                  <div className="font-semibold">Olivia Davis</div>
-                  <div className="line-clamp-1 text-xs">10:00 AM</div>
-                  <div className="line-clamp-1 text-sm">
-                    Hello! How are you today?
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-start gap-2 text-right self-end">
-                <div className="grid gap-1">
-                  <div className="font-semibold">John Doe</div>
-                  <div className="line-clamp-1 text-xs">10:05 AM</div>
-                  <div className="line-clamp-1 text-sm">
-                    I'm good, thanks! How about you?
-                  </div>
-                </div>
-                <Avatar>
-                  <AvatarImage alt="@shadcn" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-              </div>
-            </div>
-          </div>
+          <ChatWindow chat={selectedChat} />
           <div className="border-t p-4">
-            <form className="flex items-center gap-2">
-              <Input placeholder="Type a message" />
+            <form
+              className="flex items-center gap-2"
+              onSubmit={handleSubmit(sendMessage)}
+            >
+              <Input placeholder="Type a message" {...register("content")} />
               <Button type="submit">Send</Button>
             </form>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-function TextIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M17 6.1H3" />
-      <path d="M21 12.1H3" />
-      <path d="M15.1 18H3" />
-    </svg>
-  );
-}
-
-function UserIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
   );
 }

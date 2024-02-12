@@ -48,7 +48,7 @@ export default function LoginForm() {
         {errors.password && <p>Password is required</p>}
       </div>
       <Button className="w-full" type="submit">
-        Register
+        Login
       </Button>
     </form>
   );

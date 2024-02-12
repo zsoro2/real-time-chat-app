@@ -1,11 +1,19 @@
 function setupSocket(server) {
   const { Server } = require("socket.io");
-  const io = new Server(server);
+
+  const corsOptions = {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
+    credentials: true,
+  };
+
+  const io = new Server(server, {
+    cors: corsOptions,
+  });
 
   io.on("connection", (socket) => {
     console.log("a user connected");
-
-    // Handle custom events like 'joinRoom', 'sendMessage', etc.
 
     socket.on("disconnect", () => {
       console.log("user disconnected");
