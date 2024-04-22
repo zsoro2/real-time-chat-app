@@ -1,8 +1,18 @@
-import { useUser } from "@/hooks/useUser";
+import { useAuth } from "@/hooks/useAuth";
+import { Input } from "@/components/ui/input";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
+import MembersSearch from "@/components/membersSearch";
+import { Chat } from "@/hooks/useChats";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { useState } from "react";
 
-const ChatList = ({ chats, onSelectChat }) => {
-  const { user } = useUser();
+interface ChatListProps {
+  chats: Chat[];
+  onSelectChat: (chat: Chat) => void;
+}
+
+const ChatList = ({ chats, onSelectChat }: ChatListProps) => {
+  const { user } = useAuth();
 
   const getLastMessageFromOthers = (chatData) => {
     const messagesFromOthers = chatData.messages
@@ -22,6 +32,7 @@ const ChatList = ({ chats, onSelectChat }) => {
   return (
     <div className="w-64 border-r overflow-auto hidden md:block">
       <nav className="grid gap-4 p-4">
+        <MembersSearch />
         <div className="flex items-center gap-2 bg-gray-200 rounded-md p-2">
           <Avatar>
             <AvatarImage alt="@shadcn" />

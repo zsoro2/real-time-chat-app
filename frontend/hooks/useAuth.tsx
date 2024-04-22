@@ -18,7 +18,7 @@ interface LoginError {
 
 const fetcher = (url: string) => axios.get<User>(url).then((res) => res.data);
 
-export function useUser() {
+export function useAuth() {
   const { data, mutate, error } = useSWR<User, AxiosError>(
     "/api/auth/user",
     fetcher

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useUser } from "@/hooks/useUser";
+import { useAuth } from "@/hooks/useAuth";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 
 interface ChatMessage {
@@ -13,7 +13,7 @@ interface ChatMessage {
 }
 
 const ChatWindow = ({ chat }) => {
-  const { user } = useUser();
+  const { user } = useAuth();
 
   const messagesEndRef = useRef(null);
 

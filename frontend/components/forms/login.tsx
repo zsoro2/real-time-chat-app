@@ -7,6 +7,11 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import axios from "@/lib/axiosInstance";
 
+interface LoginDetails {
+  email: string;
+  password: string;
+}
+
 export default function LoginForm() {
   const router = useRouter();
   const {
@@ -15,7 +20,7 @@ export default function LoginForm() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = async ({ email, password }) => {
+  const onSubmit = async ({ email, password }: LoginDetails) => {
     try {
       await axios.post("/api/auth/login", {
         email,
@@ -23,7 +28,7 @@ export default function LoginForm() {
       });
 
       router.push("/chat");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration failed:", error.message);
     }
   };

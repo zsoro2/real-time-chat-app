@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import io from "socket.io-client";
 import { useEffect, useState } from "react";
-import { useUser } from "@/hooks/useUser";
+import { useAuth } from "@/hooks/useAuth";
 import { useChats } from "@/hooks/useChats";
 import { Button } from "@/components/ui/button";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
@@ -19,7 +19,7 @@ const socket = io(BACKEND_URL);
 
 export default function Page() {
   const router = useRouter();
-  const { user } = useUser();
+  const { user } = useAuth();
   const { chats, chatsAreLoading, chatsHasError, mutate } = useChats();
   const [selectedChat, setSelectedChat] = useState({});
   const { register, handleSubmit, reset } = useForm();

@@ -6,7 +6,7 @@ interface ChatMessage {
   content: string;
 }
 
-interface Chat {
+export interface Chat {
   chatId: number;
   lastMessage: ChatMessage;
 }
@@ -15,7 +15,7 @@ interface Error {
   message: string;
 }
 
-interface UseChatsReturn {
+export interface UseChatsReturn {
   chats: Chat[] | undefined;
   chatsAreLoading: boolean;
   chatsHasError: Error | undefined;
