@@ -3,7 +3,9 @@ const prisma = new PrismaClient();
 
 const messageController = {
   store: async (req, res, io) => {
-    const { content, userId, receiverId } = req.body;
+    const currentDate = new Date().toISOString().slice(0, 19).replace("T", " ");
+    const userId = req.user.id;
+    const { content, receiverId } = req.body;
 
     try {
       let [chat] = await prisma.$queryRaw(
@@ -18,35 +20,35 @@ const messageController = {
 
       if (!chat) {
         // Insert new chat
-        const insertChatResult = await prisma.$executeRaw(
-          Prisma.sql`INSERT INTO Chat (type) VALUES ('private');`
+        await prisma.$executeRaw(
+          Prisma.sql`INSERT INTO Chat (type, createdAt, updatedAt) VALUES ('private', ${currentDate}, ${currentDate});`
+        );
+        const [insertChatResult] = await prisma.$queryRaw(
+          Prisma.sql`SELECT LAST_INSERT_ID() as insertId;`
         );
         const newChatId = insertChatResult.insertId;
-
-        // Insert participants
-        await prisma.$executeRaw(
-          Prisma.sql`INSERT INTO Participant (userId, chatId) VALUES (${userId}, ${newChatId}), (${receiverId}, ${newChatId});`
-        );
-
-        // Fetch the newly created chat with participants
         [chat] = await prisma.$queryRaw(
           Prisma.sql`SELECT * FROM Chat WHERE id = ${newChatId};`
         );
+
+        // Insert participants
+        await prisma.$executeRaw(
+          Prisma.sql`INSERT INTO Participant (userId, chatId, joinedAt) VALUES (${userId}, ${newChatId}, ${currentDate}), (${receiverId}, ${newChatId}, ${currentDate});`
+        );
       }
-      let msgStatus = 'read';
-      // Add message to the chat using raw SQL, regardless of whether the chat is new or existing
+
+      let msgStatus = "read";
       await prisma.$executeRaw(
         Prisma.sql`INSERT INTO Message (content, chatId, userId, status)
                     VALUES (${content}, ${chat.id}, ${userId}, ${msgStatus});`
       );
 
-      io.emit('newMessage',  { content, chatId: chat.id, userId });
+      io.emit("newMessage", { content, chatId: chat.id, userId });
 
       res
         .status(201)
         .json({ message: { content, chatId: chat.id, userId }, chat });
     } catch (error) {
-      console.log(error);
       res.status(400).json({ error: "Unable to send message -" + error });
     }
   },

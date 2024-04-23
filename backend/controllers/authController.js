@@ -61,13 +61,12 @@ const authController = {
           expires: new Date(Date.now() + 3600000), // 1h
         });
 
-        res.status(201).json({
+        res.status(200).json({
           id: user.id,
           username: user.username,
           email: user.email,
           token: token,
         });
-
       } else {
         res.status(401).send("Invalid credentials");
       }

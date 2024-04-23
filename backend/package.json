@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "PORT=5002 jest",
+    "test": "PORT=5002 jest --forceExit --detectOpenHandles --maxWorkers=1",
     "start": "node app.js",
     "dev": "nodemon app.js"
   },

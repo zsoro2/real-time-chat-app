@@ -1,4 +1,4 @@
-const server = require("../app");
+const server = require("../../app");
 const request = require("supertest");
 const { faker } = require("@faker-js/faker");
 
@@ -23,13 +23,13 @@ describe("Authentication Endpoints", () => {
     };
   });
 
-  it("should register a new user", async () => {
+  test("register a new user", async () => {
     expect(registeredUser).toHaveProperty("id");
     expect(registeredUser).toHaveProperty("username");
     expect(registeredUser).toHaveProperty("email");
   });
 
-  it("should login the registered user", async () => {
+  test("login the registered user", async () => {
     const loginResponse = await request(server).post("/api/auth/login").send({
       email: registeredUser.email,
       password: "password123",
