@@ -1,26 +1,12 @@
 const server = require("../../app");
 const request = require("supertest");
-const { faker } = require("@faker-js/faker");
+const { registerUser } = require("../helpers/user");
 
 describe("Authentication Endpoints", () => {
   let registeredUser = null;
 
   beforeAll(async () => {
-    const newUser = {
-      username: faker.internet.userName(),
-      email: faker.internet.email(),
-      password: "password123",
-    };
-
-    const registerResponse = await request(server)
-      .post("/api/auth/register")
-      .send(newUser);
-
-    expect(registerResponse.statusCode).toBe(201);
-    registeredUser = {
-      ...newUser,
-      id: registerResponse.body.id,
-    };
+    registeredUser = await registerUser();
   });
 
   test("register a new user", async () => {
