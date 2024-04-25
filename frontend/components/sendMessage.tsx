@@ -7,11 +7,36 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import PaperAirplane from "./icons/PaperAirplane";
+import axiosInstance from "@/lib/axiosInstance";
+import { AxiosReponse } from "axios";
+import { useState } from "react";
 
-export default function SendMessage() {
+export default function SendMessage({ receiverId }: { receiverId: number }) {
+  const [success, setSuccess] = useState<boolean>(false);
+
+  async function onSendMessage(formData: FormData) {
+    if ("" !== formData.get("content")) {
+      console.log(receiverId);
+      await axiosInstance
+        .post("/api/messages", {
+          content: formData.get("content"),
+          receiverId: receiverId,
+        })
+        .then(function (response: AxiosReponse<ChatMessageResponse>) {
+          console.log(response);
+          setSuccess(true);
+        })
+        .catch((err) => {
+          //TODO: Error handleing
+          console.log(err);
+        });
+    }
+  }
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -23,16 +48,38 @@ export default function SendMessage() {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Send Message</DialogTitle>
-          <DialogDescription>Lorem ipsum dolor sit amet.</DialogDescription>
-        </DialogHeader>
-        <Textarea rows={5} placeholder="Type your message here." />
-        <DialogFooter>
-          <Button type="submit" className="w-full">
-            Send message <PaperAirplane className="ml-2 h-4 w-4" />{" "}
-          </Button>
-        </DialogFooter>
+        {success ? (
+          <div className="space-y-5">
+            <DialogHeader className="item-center flex items-center">
+              <DialogTitle>Sikeres üzenetküldés!</DialogTitle>
+              <DialogDescription>Lorem ipsum dolor sit amet.</DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center">
+              <DialogClose asChild className="mx-auto">
+                <Button type="button" variant="secondary">
+                  Bezárás
+                </Button>
+              </DialogClose>
+            </div>
+          </div>
+        ) : (
+          <form action={onSendMessage} className="space-y-2">
+            <DialogHeader>
+              <DialogTitle>Send Message</DialogTitle>
+              <DialogDescription>Lorem ipsum dolor sit amet.</DialogDescription>
+            </DialogHeader>
+            <Textarea
+              name="content"
+              rows={5}
+              placeholder="Type your message here."
+            />
+            <DialogFooter>
+              <Button type="submit" className="w-full">
+                Send message <PaperAirplane className="ml-2 h-4 w-4" />{" "}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );

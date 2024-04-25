@@ -66,6 +66,33 @@ describe("Messaging Endpoints", () => {
     );
   });
 
+  test("send new message without receiver", async () => {
+    const messageData = {
+      content: "Hello from user1 to user2!",
+    };
+
+    const response = await request(server)
+      .post("/api/messages")
+      .set("Cookie", cookies)
+      .send(messageData);
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toHaveProperty("errors");
+  });
+
+  test("send new message without authenticated user", async () => {
+    const messageData = {
+      content: "Hello from user1 to user2!",
+      userId: 123,
+    };
+
+    const response = await request(server)
+      .post("/api/messages")
+      .send(messageData);
+
+    expect(response.statusCode).toBe(401);
+  });
+
   afterEach(async () => {
     await server.close();
   });

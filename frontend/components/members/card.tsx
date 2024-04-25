@@ -21,7 +21,7 @@ export default function MembersCard({ user }) {
           Lorem ipsum dolor sit amet consectetur adipisicing elit.
         </p>
         <div className="flex mt-4 space-x-2">
-          <SendMessage />
+          <SendMessage receiverId={user.id} />
         </div>
       </CardContent>
     </Card>
