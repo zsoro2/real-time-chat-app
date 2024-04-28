@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "PORT=5002 jest --forceExit --detectOpenHandles --maxWorkers=1",
+    "test": "PORT=5002 jest --forceExit --detectOpenHandles --maxWorkers=1 --watchAll",
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
@@ -20,7 +20,9 @@
     "express": "^4.18.2",
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
     "prisma": "^5.8.1",
+    "sharp": "^0.33.3",
     "socket.io": "^4.7.4"
   },
   "devDependencies": {

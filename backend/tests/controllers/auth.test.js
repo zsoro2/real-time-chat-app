@@ -1,6 +1,6 @@
 const server = require("../../app");
 const request = require("supertest");
-const { registerUser } = require("../helpers/user");
+const { registerUser, registerAndLoginUser } = require("../helpers/user");
 
 describe("Authentication Endpoints", () => {
   let registeredUser = null;
@@ -23,6 +23,18 @@ describe("Authentication Endpoints", () => {
 
     expect(loginResponse.statusCode).toBe(200);
     expect(loginResponse.body).toHaveProperty("token");
+  });
+
+  test("user get its own data", async () => {
+    let [user, cookies] = await registerAndLoginUser();
+
+    const response = await request(server)
+      .get("/api/auth/user")
+      .set("Cookie", cookies);
+
+    expect(response.statusCode).toBe(200);
+    expect(user.email).toBe(response.body.email);
+    expect(user.username).toBe(response.body.username);
   });
 
   afterEach(async () => {

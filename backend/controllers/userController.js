@@ -39,6 +39,30 @@ const userController = {
       res.status(500).json({ error: "Unable to fetch users" });
     }
   },
+
+  update: async (req, res) => {
+    const userId = req.user.id;
+    const pictureImage = req.file ? req.file.path : null;
+    const { username } = req.body;
+
+    let updateData = {};
+    if (pictureImage) updateData.profileImage = pictureImage;
+    if (username) updateData.username = username;
+
+    try {
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: updateData,
+      });
+
+      res.status(200).json({
+        message: "User updated successfully",
+        user: updatedUser,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Unable to update user" });
+    }
+  },
 };
 
 module.exports = userController;

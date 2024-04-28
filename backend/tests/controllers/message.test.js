@@ -1,6 +1,7 @@
 const server = require("../../app");
 const request = require("supertest");
 const { faker } = require("@faker-js/faker");
+const { registerUser } = require("../helpers/user");
 
 describe("Messaging Endpoints", () => {
   let cookies;
@@ -8,40 +9,31 @@ describe("Messaging Endpoints", () => {
 
   beforeAll(async () => {
     // Create user1
-    const user1Details = {
-      username: faker.internet.userName(),
-      email: faker.internet.email(),
+    user1 = await registerUser({
       password: "password123",
-    };
-
-    await request(server).post("/api/auth/register").send(user1Details);
+    });
 
     const login1 = await request(server)
       .post("/api/auth/login")
-      .send({ email: user1Details.email, password: "password123" });
+      .send({ email: user1.email, password: "password123" });
 
     expect(login1.statusCode).toBe(200);
     cookies = login1.headers["set-cookie"]
       .map((cookie) => cookie.split(";")[0])
       .join("; ");
-    user1 = { ...user1Details, id: login1.body.id };
-    token = login1.body.token;
+    user1 = { ...user1, id: login1.body.id };
 
     // Create user2
-    const user2Details = {
-      username: faker.internet.userName(),
-      email: faker.internet.email(),
+    user2 = await registerUser({
       password: "password123",
-    };
-
-    await request(server).post("/api/auth/register").send(user2Details);
+    });
 
     const login2 = await request(server)
       .post("/api/auth/login")
-      .send({ email: user2Details.email, password: "password123" });
+      .send({ email: user2.email, password: "password123" });
 
     expect(login2.statusCode).toBe(200);
-    user2 = { ...user2Details, id: login2.body.id };
+    user2 = { ...user2, id: login2.body.id };
   });
 
   test("send new message", async () => {

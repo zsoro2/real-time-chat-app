@@ -25,6 +25,23 @@ async function registerUser(userData) {
   };
 }
 
+async function registerAndLoginUser() {
+  let user = await registerUser();
+
+  const login = await request(server)
+    .post("/api/auth/login")
+    .send({ email: user.email, password: "password123" });
+
+  expect(login.statusCode).toBe(200);
+  let cookies = login.headers["set-cookie"]
+    .map((cookie) => cookie.split(";")[0])
+    .join("; ");
+  user = { ...user, id: login.body.id };
+
+  return [user, cookies];
+}
+
 module.exports = {
   registerUser,
+  registerAndLoginUser,
 };
