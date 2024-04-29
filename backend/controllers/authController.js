@@ -96,6 +96,8 @@ const authController = {
         id: user.id,
         username: user.username,
         email: user.email,
+        profileImage: user.profileImage,
+        nickname: user.nickname
       });
     } catch (error) {
       return res

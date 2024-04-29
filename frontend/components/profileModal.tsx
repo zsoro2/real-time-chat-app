@@ -16,6 +16,9 @@ import { Label } from "@/components/ui/label";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 
 import UserIcon from "@/components/icons/UserIcon";
+import axiosInstance from "@/lib/axiosInstance";
+import { BACKEND_URL } from "@/lib/config";
+import { UpdateUserResponse } from "@/types/userTypes";
 
 export default function ProfileModal() {
   const { user } = useAuth();
@@ -38,7 +41,40 @@ export default function ProfileModal() {
       return;
     }
 
-    console.log("File is valid, process it here");
+    axiosInstance.post();
+
+    var formData = new FormData();
+    formData.append("pictureImage", file);
+    axiosInstance
+      .put("/api/users", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(({ response }: UpdateUserResponse) => {
+        //TODO: UPDATE WITH PRETTIER
+        alert("success");
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
+  };
+
+  const handleFormSubmit = (formData: FormData) => {
+    const nickaname = formData.get("nickname");
+    if (nickaname) {
+      var formData = new FormData();
+      formData.append("nickname", nickaname);
+      axiosInstance
+        .put("/api/users", formData, {})
+        .then(({ response }: UpdateUserResponse) => {
+          //TODO: UPDATE WITH PRETTIER
+          alert("Successfully updated nicname");
+        })
+        .catch((error: any) => {
+          console.log(error);
+        });
+    }
   };
 
   return (
@@ -52,38 +88,55 @@ export default function ProfileModal() {
         </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Profile update</DialogTitle>
-        </DialogHeader>
-        <div className="flex flex-col space-y-5">
-          <div className="flex">
-            <Avatar
-              className="h-20 w-20 cursor-pointer"
-              onClick={handleAvatarClick}
-            >
-              <AvatarImage alt="@shadcn" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-            <input
-              type="file"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              accept=".jpg,.jpeg,.png"
-              onChange={handleAvatarChange}
-            />
+        <form action={handleFormSubmit} className="space-y-2">
+          <DialogHeader>
+            <DialogTitle>Profile update</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col space-y-2">
+            <div className="flex">
+              <Avatar
+                className="h-20 w-20 cursor-pointer"
+                onClick={handleAvatarClick}
+              >
+                {user?.profileImage ? (
+                  <div class>
+                    <img src={BACKEND_URL + "/" + user?.profileImage} />
+                  </div>
+                ) : (
+                  <>
+                    <AvatarImage alt="@shadcn" />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </>
+                )}
+              </Avatar>
+            </div>
+            <div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                accept=".jpg,.jpeg,.png"
+                onChange={handleAvatarChange}
+              />
+            </div>
+            <div className="grid flex-1 gap-2">
+              <Label htmlFor="nickname">Nickname</Label>
+              <Input
+                name="nickname"
+                placeholder="Nickname"
+                defaultValue={user?.nickname}
+              />
+            </div>
           </div>
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="link" className="sr-only">
-              Link
-            </Label>
-            <Input id="link" defaultValue={user?.username} readOnly />
-          </div>
-        </div>
-        <DialogFooter className="sm:justify-end">
-          <DialogClose asChild>
-            <Button type="button">Save</Button>
-          </DialogClose>
-        </DialogFooter>
+          <DialogFooter className="sm:justify-end">
+            <DialogClose asChild>
+              <Button type="button" variant={"ghost"}>
+                Close
+              </Button>
+            </DialogClose>
+            <Button type="submit">Save</Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

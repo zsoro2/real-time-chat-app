@@ -13,7 +13,8 @@ const userController = {
         SELECT 
           id,
           username,
-          profileImage
+          profileImage,
+          nickname
         FROM User
         ORDER BY id ASC
         LIMIT ${limit}
@@ -43,11 +44,12 @@ const userController = {
   update: async (req, res) => {
     const userId = req.user.id;
     const pictureImage = req.file ? req.file.path : null;
-    const { username } = req.body;
+    const { username, nickname } = req.body;
 
     let updateData = {};
     if (pictureImage) updateData.profileImage = pictureImage;
     if (username) updateData.username = username;
+    if (nickname) updateData.nickname = nickname;
 
     try {
       const updatedUser = await prisma.user.update({

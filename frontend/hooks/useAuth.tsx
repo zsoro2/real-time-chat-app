@@ -1,12 +1,7 @@
 import useSWR from "swr";
 import { AxiosError } from "axios";
 import axios from "@/lib/axiosInstance";
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-}
+import { User } from "@/types/userTypes";
 
 interface LoginError {
   response?: {
