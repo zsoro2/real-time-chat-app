@@ -12,17 +12,17 @@ const chatController = {
             U.username AS participantUsername,
             U.id AS participantUserId,
             M.content AS lastMessage
-        FROM 
+        FROM
             Chat C
-        JOIN 
+        JOIN
             Participant P1 ON C.id = P1.chatId
-        JOIN 
+        JOIN
             Participant P2 ON C.id = P2.chatId AND P1.userId != P2.userId
-        JOIN 
+        JOIN
             User U ON P2.userId = U.id
-        JOIN 
+        JOIN
             Message M ON C.id = M.chatId
-        WHERE 
+        WHERE
             P1.userId = ${userId} 
             AND M.id = (
                 SELECT MAX(M2.id) 
@@ -30,9 +30,9 @@ const chatController = {
                 WHERE M2.chatId = C.id
             )
             AND P2.userId != ${userId}
-        GROUP BY 
+        GROUP BY
             C.id, U.username, M.content
-        ORDER BY 
+        ORDER BY
             C.id DESC;
       `);
 
@@ -43,7 +43,7 @@ const chatController = {
         messages = await prisma.$queryRaw(Prisma.sql`
         SELECT 
           Message.*,
-          User.username AS participantUsername, 
+          User.username AS participantUsername,
           User.profileImage AS participantProfileImage
         FROM Message
         JOIN User ON Message.userId = User.id
@@ -53,9 +53,6 @@ const chatController = {
       }
 
       const chats = activeChats.map((chat) => {
-        console.log(chat);
-        console.log("messages");
-        console.log(messages);
         let chatMessages = messages.filter((msg) => msg.chatId === chat.chatId);
         return {
           participantUserId: chat.participantUserId,
