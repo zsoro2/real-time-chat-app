@@ -1,9 +1,9 @@
-interface ChatMessageResponse {
+export interface ChatMessageResponse {
     message: ChatMessageContent,
     chat: object
 }
 
-interface ChatMessageContent {
+export interface ChatMessageContent {
     content: string,
     chatId: number,
     userId: number

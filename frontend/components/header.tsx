@@ -1,11 +1,9 @@
 import axios from "@/lib/axiosInstance";
 import { useRouter } from "next/navigation";
 import TextIcon from "@/components/icons/TextIcon";
-import UserIcon from "@/components/icons/UserIcon";
-import { Button } from "@/components/ui/button";
 import ProfileModal from "@/components/profileModal";
 
-const Header = ({ user }) => {
+const Header = () => {
   const router = useRouter();
 
   const handleLogout = async () => {

@@ -1,21 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
+import { ChatMessage, Chat } from "@/types/chatTypes";
 
-interface ChatMessage {
-  userId: number;
-  chatId: number;
-  content: string;
-  senderUsername: string;
-  status: string;
-  imageUrl: string | null;
-  createdAt: string;
-}
-
-const ChatWindow = ({ chat }) => {
+const ChatWindow = ({ chat }: { chat: Chat | null }) => {
   const { user } = useAuth();
 
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView();
@@ -23,14 +14,14 @@ const ChatWindow = ({ chat }) => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [chat.messages]);
+  }, [chat?.messages]);
 
   return (
     <div className="flex-1 overflow-auto p-4">
       <div className="flex flex-col gap-4">
         {chat?.messages?.map((message: ChatMessage) => (
           <div
-            key={message.chatId}
+            key={message.id}
             className={`flex items-start gap-2 ${
               message.userId === user.id ? "text-right self-end" : ""
             }`}

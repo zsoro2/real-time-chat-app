@@ -14,6 +14,7 @@ import PaperAirplane from "./icons/PaperAirplane";
 import axiosInstance from "@/lib/axiosInstance";
 import { AxiosReponse } from "axios";
 import { useState } from "react";
+import { ChatMessageResponse } from "@/types/chatMessageTypes";
 
 export default function SendMessage({ receiverId }: { receiverId: number }) {
   const [success, setSuccess] = useState<boolean>(false);
@@ -51,13 +52,13 @@ export default function SendMessage({ receiverId }: { receiverId: number }) {
         {success ? (
           <div className="space-y-5">
             <DialogHeader className="item-center flex items-center">
-              <DialogTitle>Sikeres üzenetküldés!</DialogTitle>
+              <DialogTitle>Message sent!</DialogTitle>
               <DialogDescription>Lorem ipsum dolor sit amet.</DialogDescription>
             </DialogHeader>
             <div className="flex items-center">
               <DialogClose asChild className="mx-auto">
                 <Button type="button" variant="secondary">
-                  Bezárás
+                  Close
                 </Button>
               </DialogClose>
             </div>

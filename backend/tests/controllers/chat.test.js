@@ -1,16 +1,22 @@
 const server = require("../../app");
 const request = require("supertest");
-const { registerUser } = require("../helpers/user");
+const { registerAndLoginUser } = require("../helpers/user");
 
 describe("Chat Enpoints", () => {
-  let registeredUser = null;
+  let cookies;
+  let user;
 
   beforeAll(async () => {
-    registeredUser = await registerUser();
+    [user, cookies] = await registerAndLoginUser();
   });
 
   test("get active chats", async () => {
-    expect(200).toBe(200);
+    const response = await request(server)
+      .get("/api/chats")
+      .set("Cookie", cookies);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toHaveProperty("data");
   });
 
   afterEach(async () => {
