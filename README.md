@@ -4,8 +4,8 @@ This project is a real-time chat application that allows users to communicate th
 
 ## Technologies Used
 
-- Frontend: React.js / Next.js / Typescript
-- Backend: Node.js with Express.js
+- Frontend: React.js / Next.js / Typescript / Tailwind CSS / shadcn
+- Backend: Node.js / Express.js
 - Testing: Jest
 - Database: MySQL
 - Real-Time Communication: Socket.IO
