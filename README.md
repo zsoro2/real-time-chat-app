@@ -51,3 +51,4 @@ real-time-chat-app/
 ├── docker-compose.yml        # Docker compose to orchestrate containers
 │
 └── README.md                 # Project documentation
+
